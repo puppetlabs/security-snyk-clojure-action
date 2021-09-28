@@ -123,7 +123,7 @@ def _confLogger(level=logging.INFO-1):
 
 def auth_snyk(s_token: str):
     # auth snyk
-    auth_result = subprocess.call(['/usr/local/bin/snyk', 'auth', s_token])
+    auth_result = subprocess.call(['/puppet/snyk', 'auth', s_token])
     if auth_result != 0:
         logging.error(f"Error authenticating to snyk. Return code: {auth_result}")
         raise AuthError("error authenticating")
@@ -167,13 +167,13 @@ if __name__ == "__main__":
         raise e
     # scan the file with snyk
     try:
-        test_res = subprocess.run(['/puppet/snyk', 'test', '--severity-threshold=medium', '--json'], stdout=subprocess.PIPE, check=False).stdout
+        test_res = subprocess.run(['/puppet/snyk', 'test', '--severity-threshold=medium', '--json', '--file=pom.xml'], stdout=subprocess.PIPE, check=False).stdout
         test_res = test_res.decode('utf-8')
         test_res = json.loads(test_res)
         if not no_monitor:
             snyk_org = f'--org={s_org}'
             snyk_proj = f'--project-name={s_proj}'
-            monitor_res = subprocess.call(['/puppet/snyk', 'monitor', snyk_org, snyk_proj])
+            monitor_res = subprocess.call(['/puppet/snyk', 'monitor', '--file=pom.xml', snyk_org, snyk_proj])
             if monitor_res != 0:
                 logging.error(f'Error running snyk monitor!')
     except Exception as e:
