@@ -1,0 +1,25 @@
+---
+name: Clojure Snyk Check
+ 
+on:
+ pull_request:
+    branches:
+      - main
+
+jobs:
+ snyk_vanagon:
+   runs-on: ubuntu-latest
+   steps:
+    - name: checkout the current PR
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Run Vanagon Snyk Scan
+      uses: puppetlabs/security-snyk-clojure-action@v0.0.1
+      with:
+        snykToken: ${{ secrets.SNYK_TOKEN }}
+        snykOrg: 'sectest'
+        snykProject: 'puppetserver'
+    - name: Check output
+      if: steps.scan.outputs.vulns != ''
+      run: echo "Vulnerabilities detected; ${{ steps.scan.outputs.vulns }}" && exit 1
