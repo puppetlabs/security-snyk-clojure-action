@@ -1,0 +1,24 @@
+name: 'security-snyk-clojure-action'
+description: 'Scans clojure repos with snyk'
+inputs:
+  snykToken:
+    description: 'snyk access token'
+    required: true
+  snykOrg:
+    description: 'snyk org to write results to'
+    required: true
+  snykProject:
+    description: 'snyk org to write results to'
+    required: true
+  noMonitor:
+    description: 'allows skipping the snyk monitor step'
+    required: false
+  
+outputs:
+  vulns: # id of output
+    description: 'Array of vulnerable packages'
+  # licenses: # id of output
+  #   description: 'Array of license issues'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
