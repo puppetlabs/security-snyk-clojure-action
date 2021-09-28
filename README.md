@@ -1,0 +1,1 @@
+# security-snyk-clojure-action
