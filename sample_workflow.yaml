@@ -15,7 +15,8 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: false
-    - name: Run Vanagon Snyk Scan
+    - name: Run Clojure Snyk Scan
+      id: scan
       uses: puppetlabs/security-snyk-clojure-action@v0.0.1
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
