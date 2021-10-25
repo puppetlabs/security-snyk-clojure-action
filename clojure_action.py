@@ -254,11 +254,9 @@ if __name__ == "__main__":
             vulns.add(VulnReport(vuln))
     except KeyError:
         logging.error(f"Error parsing vulns!")
-    logging.notice('finishing run and setting outputs and exit code')
+    logging.notice('finishing run and setting outputs')
     if vulns:
         _setOutput('vulns', vulns)
-        sys.exit(1)
     else:
         _setOutput('vulns', '')
-        sys.exit(0)
     
