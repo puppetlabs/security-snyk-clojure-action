@@ -20,6 +20,7 @@ jobs:
       uses: puppetlabs/security-snyk-clojure-action@v0.0.1
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
+        rproxyKey: ${{ secrets.RPROXY_KEY }}
         snykOrg: 'sectest'
         snykProject: 'puppetserver'
     - name: Check output

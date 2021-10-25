@@ -13,6 +13,9 @@ The organization in snyk to send results to
 ### snykProject (required)
 The project name in snyk
 
+### rproxyKey (required)
+The reverse proxy API key
+
 ### noMonitor (not required)
 If you just want to run `snyk test` and not `snyk monitor` you should set this input to `true`
 
