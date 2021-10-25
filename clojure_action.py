@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 import json
 import os
+import sys
 import subprocess
 import logging
+import xml.etree.ElementTree as ET
+from base64 import b64encode as b64e
+
+TO_REPLACE = {
+    "artifactory": "https://artifactory.delivery.puppetlabs.net",
+    "builds": "https://builds.delivery.puppetlabs.net",
+}
+REPLACE_WITH = "https://builds-portal.puppet.net"
 
 class AuthError(Exception):
     def __init__(self, value):
@@ -62,6 +71,50 @@ class VulnReport():
     def __repr__(self) -> str:
         return self.__str__()
 
+def configure_password(key, filepath="./pom.xml"):
+    settings_xml = '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">\n'
+    settings_xml += "<servers>\n"
+    # parse the xml
+    logging.notice("starting XML parse")
+    tree = ET.parse(filepath)
+    root = tree.getroot()
+    repos = root.findall('{http://maven.apache.org/POM/4.0.0}repositories')[0]
+    for repo in repos:
+        url = repo.find('{http://maven.apache.org/POM/4.0.0}url')
+        id = repo.find('{http://maven.apache.org/POM/4.0.0}id')
+        if url.text.startswith("https://artifactory.delivery.puppetlabs.net/"):
+            username = "artifactory"
+        elif url.text.startswith("https://builds.delivery.puppetlabs.net"):
+            username = "builds"
+        else:
+            logging.notice(f"skipping: {url.text}")
+            continue
+        settings_xml += "\t<server>\n"
+        settings_xml += f"\t\t<id>{id.text}</id>\n"
+        settings_xml += f"\t\t<configuration>\n\t\t<httpHeaders>\n\t\t\t<property>\n"
+        settings_xml += f"\t\t\t\t<name>Authorization</name>\n"
+        auth_header = "Basic " + b64e(f"{username}:{key}".encode('utf-8')).decode('utf-8')
+        settings_xml += f"\t\t\t\t<value>{auth_header}</value>\n"
+        settings_xml += f"\t\t\t</property>\n\t\t</httpHeaders>\n\t\t</configuration>\n"
+        settings_xml += "\t</server>\n"
+            
+    # "close" settings
+    settings_xml += "</servers>\n"
+    settings_xml += "</settings>\n"
+    logging.notice("finished XML parse")
+    # find and replace the url
+    logging.notice("starting url replacement")
+    with open(filepath, 'r') as f:
+        pomtext = f.read()
+    for _, replace in TO_REPLACE.items():
+        pomtext = pomtext.replace(replace, REPLACE_WITH)
+    with open(filepath, 'w') as f:
+        f.write(pomtext)
+    logging.notice("finished url replacement")
+    with open('./settings.xml', 'w') as f:
+        f.write(settings_xml)
+    logging.notice("finished writing settings xml")
+    
 def addLoggingLevel(levelName, levelNum, methodName=None):
     """
     Comprehensively adds a new logging level to the `logging` module and the
@@ -149,6 +202,9 @@ if __name__ == "__main__":
     s_proj = os.getenv("INPUT_SNYKPROJECT")
     if not s_proj and not no_monitor:
         raise ValueError("no snyk org")
+    rproxy_key = os.getenv("RPROXY_KEY")
+    if not rproxy_key :
+        raise ValueError("no rproxy key")
     workdir = os.getenv("GITHUB_WORKSPACE")
     if not workdir:
         raise ValueError("no github workspace!")
@@ -165,15 +221,21 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f"Couldn't generate pom file")
         raise e
+    # replace the url with the reverse proxy
+    configure_password(rproxy_key)
     # scan the file with snyk
     try:
-        test_res = subprocess.run(['/puppet/snyk', 'test', '--severity-threshold=medium', '--json', '--file=pom.xml'], stdout=subprocess.PIPE, check=False).stdout
-        test_res = test_res.decode('utf-8')
+        try:
+            test_res = subprocess.run(['/puppet/snyk', 'test', '--severity-threshold=medium', '--json', '--file=pom.xml', '--', '"-s=settings.xml"'], stdout=subprocess.PIPE, check=False, timeout=900)
+        except subprocess.TimeoutExpired as e:
+            logging.error('Timeout expired running snyk test')
+            sys.exit(1)
+        test_res = test_res.stdout.decode('utf-8')
         test_res = json.loads(test_res)
         if not no_monitor:
             snyk_org = f'--org={s_org}'
             snyk_proj = f'--project-name={s_proj}'
-            monitor_res = subprocess.call(['/puppet/snyk', 'monitor', '--file=pom.xml', snyk_org, snyk_proj])
+            monitor_res = subprocess.call(['/puppet/snyk', 'monitor', '--file=pom.xml', snyk_org, snyk_proj, '--', '"-s=settings.xml"'])
             if monitor_res != 0:
                 logging.error(f'Error running snyk monitor!')
     except Exception as e:
