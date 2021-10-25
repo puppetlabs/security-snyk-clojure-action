@@ -10,6 +10,9 @@ inputs:
   snykProject:
     description: 'snyk org to write results to'
     required: true
+  rproxyKey:
+    description: 'key for the reverse proxy'
+    required: true
   noMonitor:
     description: 'allows skipping the snyk monitor step'
     required: false

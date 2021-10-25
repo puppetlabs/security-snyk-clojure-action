@@ -16,7 +16,7 @@ itest:
 		-e INPUT_SNYKPROJECT=puppetserver \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
-		-e RPROXY_KEY=$(RPROXY_KEY) \
+		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/pe-puppet-server-extensions":"/github/workspace" \
 		-t clojure_action 
 exec:
@@ -27,6 +27,6 @@ exec:
 		-e INPUT_SNYKPROJECT=puppetserver \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
-		-e RPROXY_KEY=$(RPROXY_KEY) \
+		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/pe-puppet-server-extensions":"/github/workspace" \
 		-it clojure_action /bin/bash

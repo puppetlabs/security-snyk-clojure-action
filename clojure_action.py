@@ -202,7 +202,7 @@ if __name__ == "__main__":
     s_proj = os.getenv("INPUT_SNYKPROJECT")
     if not s_proj and not no_monitor:
         raise ValueError("no snyk org")
-    rproxy_key = os.getenv("RPROXY_KEY")
+    rproxy_key = os.getenv("INPUT_RPROXYKEY")
     if not rproxy_key :
         raise ValueError("no rproxy key")
     workdir = os.getenv("GITHUB_WORKSPACE")
@@ -254,8 +254,11 @@ if __name__ == "__main__":
             vulns.add(VulnReport(vuln))
     except KeyError:
         logging.error(f"Error parsing vulns!")
+    logging.notice('finishing run and setting outputs and exit code')
     if vulns:
         _setOutput('vulns', vulns)
+        sys.exit(1)
     else:
         _setOutput('vulns', '')
-    logging.notice('finished run')
+        sys.exit(0)
+    
