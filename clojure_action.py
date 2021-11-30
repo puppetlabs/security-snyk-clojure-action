@@ -23,16 +23,15 @@ class AuthError(Exception):
 class VulnReport():
     def _getVulnID(self, vuln)->str:
         '''returns the CVE ids'''
+        id_string = vuln['id']
         try:
             cveid = vuln['identifiers']['CVE']
-            cveid = ','.join(cveid)
-            return cveid
+            cveid = '|'.join(cveid)
+            if cveid:
+                id_string = f'{id_string}|{cveid}'
         except KeyError:
-            try:
-                id = vuln['id']
-                return id
-            except KeyError:
-                return 'UNKNOWN'
+            pass
+        return id_string
         
     def __init__(self, vuln: dict):
         self._vuln = vuln
@@ -208,6 +207,7 @@ if __name__ == "__main__":
     workdir = os.getenv("GITHUB_WORKSPACE")
     if not workdir:
         raise ValueError("no github workspace!")
+    snyk_policy = os.getenv("INPUT_SNYKPOLICY")
     os.chdir(workdir)
     # auth snyk
     try:
@@ -226,7 +226,19 @@ if __name__ == "__main__":
     # scan the file with snyk
     try:
         try:
-            test_res = subprocess.run(['/puppet/snyk', 'test', '--severity-threshold=medium', '--json', '--file=pom.xml', '--', '"-s=settings.xml"'], stdout=subprocess.PIPE, check=False, timeout=900)
+            logging.notice("Running snyk test")
+            args = ['/puppet/snyk', 
+                'test', 
+                '--severity-threshold=medium', 
+                '--json', 
+                '--file=pom.xml', 
+                '--', 
+                '"-s=settings.xml"'
+            ]
+            if snyk_policy:
+                policyarg = f'--policy-path={snyk_policy}'
+                args.insert(2, policyarg)
+            test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
         except subprocess.TimeoutExpired as e:
             logging.error('Timeout expired running snyk test')
             sys.exit(1)
@@ -235,7 +247,16 @@ if __name__ == "__main__":
         if not no_monitor:
             snyk_org = f'--org={s_org}'
             snyk_proj = f'--project-name={s_proj}'
-            monitor_res = subprocess.call(['/puppet/snyk', 'monitor', '--file=pom.xml', snyk_org, snyk_proj, '--', '"-s=settings.xml"'])
+            args = ['/puppet/snyk', 
+                'monitor', 
+                '--file=pom.xml', 
+                snyk_org, 
+                snyk_proj, 
+                '--', 
+                '"-s=settings.xml"'
+            ]
+            logging.notice("running snyk monitor")
+            monitor_res = subprocess.call(args)
             if monitor_res != 0:
                 logging.error(f'Error running snyk monitor!')
     except Exception as e:
