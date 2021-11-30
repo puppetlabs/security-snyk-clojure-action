@@ -19,6 +19,21 @@ itest:
 		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/pe-puppet-server-extensions":"/github/workspace" \
 		-t clojure_action 
+itest_ignore:
+	make delete
+	make build
+	make copy_testfiles
+	cp ./testfiles/.snyk ./testfiles/pe-puppet-server-extensions/
+	docker run --name clojure_action \
+		-e INPUT_SNYKORG=sectest \
+		-e INPUT_SNYKPROJECT=puppetserver \
+		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
+		-e GITHUB_WORKSPACE=/github/workspace \
+		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
+		-e INPUT_NOMONITOR=true \
+		-e INPUT_SNYKPOLICY=.snyk \
+		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/pe-puppet-server-extensions":"/github/workspace" \
+		-t clojure_action 
 exec:
 	make delete
 	make build
