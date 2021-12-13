@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
- snyk_vanagon:
+ snyk_clojure:
    runs-on: ubuntu-latest
    steps:
     - name: checkout the current PR
@@ -17,12 +17,13 @@ jobs:
         persist-credentials: false
     - name: Run Clojure Snyk Scan
       id: scan
-      uses: puppetlabs/security-snyk-clojure-action@v0.0.1
+      uses: puppetlabs/security-snyk-clojure-action@v1.1.0
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
         rproxyKey: ${{ secrets.RPROXY_KEY }}
         snykOrg: 'sectest'
         snykProject: 'puppetserver'
+        snykPolicy: '.snyk'
     - name: Check output
       if: steps.scan.outputs.vulns != ''
       run: echo "Vulnerabilities detected; ${{ steps.scan.outputs.vulns }}" && exit 1
