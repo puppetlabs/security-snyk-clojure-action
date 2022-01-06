@@ -1,0 +1,27 @@
+---
+name: snyk_pr
+ 
+on: [pull_request_target]
+
+jobs:
+ snyk_vanagon:
+   runs-on: ubuntu-latest
+   steps:
+    - name: checkout the current PR
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        persist-credentials: false
+    - name: Run Clojure Snyk Scan
+      id: scan
+      uses: puppetlabs/security-snyk-clojure-action@v1.1.0
+      with:
+        snykToken: ${{ secrets.SNYK_PE_TOKEN }}
+        rproxyKey: ${{ secrets.SEC_RPROXY_KEY }}
+        snykOrg: 'puppet-enterprise'
+        snykProject: 'pe-console-services'
+        snykPolicy: '.snyk'
+        noMonitor: "true"
+    - name: Check output
+      if: steps.scan.outputs.vulns != ''
+      run: echo "Vulnerabilities detected; ${{ steps.scan.outputs.vulns }}" && exit 1

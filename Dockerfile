@@ -1,4 +1,4 @@
-FROM openjdk:11-slim-buster
+FROM openjdk:11-slim-bullseye
 # move into the puppet directory
 RUN mkdir -p /puppet/
 ADD clojure_action.py /puppet/clojure_action
