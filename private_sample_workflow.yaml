@@ -14,7 +14,7 @@ jobs:
         persist-credentials: false
     - name: Run Clojure Snyk Scan
       id: scan
-      uses: puppetlabs/security-snyk-clojure-action@v1.1.0
+      uses: puppetlabs/security-snyk-clojure-action@v1.2.0
       with:
         snykToken: ${{ secrets.SNYK_PE_TOKEN }}
         rproxyKey: ${{ secrets.SEC_RPROXY_KEY }}
