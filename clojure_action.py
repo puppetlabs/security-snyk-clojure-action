@@ -265,6 +265,7 @@ if __name__ == "__main__":
     # parse the results
     licenses_errors = set()
     vulns = set()
+    license_vulns = set()
     try:
         for lic, _v in test_res['licensesPolicy']['orgLicenseRules'].items():
             licenses_errors.add(lic)
@@ -272,7 +273,12 @@ if __name__ == "__main__":
         logging.error(f"Error parsing licenses!")
     try:
         for vuln in test_res['vulnerabilities']:
-            vulns.add(VulnReport(vuln))
+            report=str(VulnReport(vuln))
+            licenseString='lic'
+            if(licenseString in report):
+                license_vulns.add(report)
+            else:
+                vulns.add(report)
     except KeyError:
         logging.error(f"Error parsing vulns!")
     logging.notice('finishing run and setting outputs')
