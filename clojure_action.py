@@ -64,6 +64,7 @@ class VulnReport():
     
     def __hash__(self) -> int:
         return hash(self.__key())
+    
     def __str__(self):
         return f'{self.package_name}-{self.version}: {self.vuln_string}'
     def __repr__(self) -> str:
