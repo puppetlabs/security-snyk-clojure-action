@@ -274,7 +274,7 @@ if __name__ == "__main__":
     try:
         for vuln in test_res['vulnerabilities']:
             report=str(VulnReport(vuln))
-            licenseString='lic'
+            licenseString='snyk:lic'
             if(licenseString in report):
                 license_vulns.add(report)
             else:
