@@ -268,7 +268,7 @@ if __name__ == "__main__":
         logging.error(f"Error parsing licenses!")
     try:
         for vuln in test_res['vulnerabilities']:
-            if(vulns['id'].startswith('snyk:lic:') is False):
+            if not vuln['id'].startswith('snyk:lic:'):
                 vulns.add(VulnReport(vuln))
     except KeyError:
         logging.error(f"Error parsing vulns!")
