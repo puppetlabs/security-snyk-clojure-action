@@ -118,17 +118,14 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
     """
     Comprehensively adds a new logging level to the `logging` module and the
     currently configured logging class.
-
     `levelName` becomes an attribute of the `logging` module with the value
     `levelNum`. `methodName` becomes a convenience method for both `logging`
     itself and the class returned by `logging.getLoggerClass()` (usually just
     `logging.Logger`). If `methodName` is not specified, `levelName.lower()` is
     used.
-
     To avoid accidental clobberings of existing attributes, this method will
     raise an `AttributeError` if the level name is already an attribute of the
     `logging` module or if the method name is already present 
-
     Example
     -------
     >>> addLoggingLevel('TRACE', logging.DEBUG - 5)
@@ -137,7 +134,6 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
     >>> logging.trace('so did this')
     >>> logging.TRACE
     5
-
     """
     if not methodName:
         methodName = levelName.lower()
@@ -265,7 +261,6 @@ if __name__ == "__main__":
     # parse the results
     licenses_errors = set()
     vulns = set()
-    license_vulns = set()
     try:
         for lic, _v in test_res['licensesPolicy']['orgLicenseRules'].items():
             licenses_errors.add(lic)
@@ -273,12 +268,8 @@ if __name__ == "__main__":
         logging.error(f"Error parsing licenses!")
     try:
         for vuln in test_res['vulnerabilities']:
-            report=str(VulnReport(vuln))
-            licenseString='snyk:lic'
-            if(licenseString in report):
-                license_vulns.add(report)
-            else:
-                vulns.add(report)
+            if(vulns['id'].startswith('snyk:lic:') is False):
+                vulns.add(VulnReport(vuln))
     except KeyError:
         logging.error(f"Error parsing vulns!")
     logging.notice('finishing run and setting outputs')
@@ -286,4 +277,3 @@ if __name__ == "__main__":
         _setOutput('vulns', vulns)
     else:
         _setOutput('vulns', '')
-    
