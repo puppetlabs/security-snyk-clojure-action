@@ -1,10 +1,10 @@
 ---
 name: snyk_pr
- 
+
 on: [pull_request_target]
 
 jobs:
- snyk_vanagon:
+ snyk_ezbake:
    runs-on: ubuntu-latest
    steps:
     - name: checkout the current PR

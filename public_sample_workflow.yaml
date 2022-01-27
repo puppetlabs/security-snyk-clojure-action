@@ -1,12 +1,12 @@
 ---
 name: Clojure Snyk Check
- 
-on: 
+
+on:
   pull_request_target:
     types: [labeled]
 
 jobs:
- snyk_vanagon:
+ snyk_ezbake:
    runs-on: ubuntu-latest
    if: contains(github.event.pull_request.labels.*.name, 'safe to test')
    steps:
