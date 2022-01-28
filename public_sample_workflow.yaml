@@ -6,7 +6,7 @@ on:
     types: [labeled]
 
 jobs:
- snyk_vanagon:
+ snyk_scan:
    runs-on: ubuntu-latest
    if: contains(github.event.pull_request.labels.*.name, 'safe to test')
    steps:
@@ -17,7 +17,7 @@ jobs:
         persist-credentials: false
     - name: Run Clojure Snyk Scan
       id: scan
-      uses: puppetlabs/security-snyk-clojure-action@v0.0.1
+      uses: puppetlabs/security-snyk-clojure-action@main
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
         rproxyKey: ${{ secrets.RPROXY_KEY }}
