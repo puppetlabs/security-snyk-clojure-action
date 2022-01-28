@@ -11,7 +11,8 @@ TO_REPLACE = {
     "artifactory": "https://artifactory.delivery.puppetlabs.net",
     "builds": "https://builds.delivery.puppetlabs.net",
 }
-REPLACE_WITH = "https://builds-portal.puppet.net"
+REPLACE_BASE = "builds-portal.puppet.net"
+REPLACE_WITH = f"https://{REPLACE_BASE}"
 
 class AuthError(Exception):
     def __init__(self, value):
@@ -70,7 +71,28 @@ class VulnReport():
     def __repr__(self) -> str:
         return self.__str__()
 
-def configure_password(key, filepath="./pom.xml"):
+def configure_clj_pw(key, filepath="./project.clj"):
+    logging.notice("starting url replacement in project")
+    with open(filepath, 'r') as f:
+        cljtext = f.read()
+    for u,r in TO_REPLACE.items():
+        tr = REPLACE_WITH.replace("https://", f'https://{u}:{key}@')
+        cljtext = cljtext.replace(r, tr)
+    with open(filepath, 'w') as f:
+        f.write(cljtext)
+
+def configure_mvn_pw(key, filepath="./pom.xml"):
+    # remove auth string from URLs if they exist
+    with open(filepath, 'r') as f:
+        pomtext = f.read()
+    for u, r in TO_REPLACE.items():
+        r = r.replace('https://', '')
+        pomtext = pomtext.replace(f'{u}:{key}@{REPLACE_BASE}', r)
+    # pomtext = pomtext.replace(f'artifactory:{key}@builds-portal.puppet.net', 'artifactory.delivery.puppetlabs.net')
+    # pomtext = pomtext.replace(f'builds:{key}@builds-portal.puppet.net', 'builds.delivery.puppetlabs.net')
+    with open(filepath, 'w') as f:
+        f.write(pomtext)
+    #
     settings_xml = '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">\n'
     settings_xml += "<servers>\n"
     # parse the xml
@@ -86,7 +108,8 @@ def configure_password(key, filepath="./pom.xml"):
         elif url.text.startswith("https://builds.delivery.puppetlabs.net"):
             username = "builds"
         else:
-            logging.notice(f"skipping: {url.text}")
+            skipping = url.text.replace(key, '***')
+            logging.notice(f"skipping: {skipping}")
             continue
         settings_xml += "\t<server>\n"
         settings_xml += f"\t\t<id>{id.text}</id>\n"
@@ -102,7 +125,7 @@ def configure_password(key, filepath="./pom.xml"):
     settings_xml += "</settings>\n"
     logging.notice("finished XML parse")
     # find and replace the url
-    logging.notice("starting url replacement")
+    logging.notice("starting url replacement in pom")
     with open(filepath, 'r') as f:
         pomtext = f.read()
     for _, replace in TO_REPLACE.items():
@@ -180,9 +203,7 @@ def _setOutput(name:str, value:str):
     #echo "::set-output name=action_fruit::strawberry"
     print(f'::set-output name={name}::{value}')
 
-if __name__ == "__main__":
-    _confLogger()
-    # get our env vars
+def _get_env_vars():
     s_token = os.getenv("INPUT_SNYKTOKEN")
     if not s_token:
         raise ValueError("no snyk token")
@@ -204,21 +225,38 @@ if __name__ == "__main__":
     if not workdir:
         raise ValueError("no github workspace!")
     snyk_policy = os.getenv("INPUT_SNYKPOLICY")
-    os.chdir(workdir)
+    return {
+        "s_token": s_token,
+        "no_monitor": no_monitor,
+        "s_org": s_org,
+        "s_proj": s_proj,
+        "rproxy_key": rproxy_key,
+        "workdir": workdir,
+        "snyk_policy": snyk_policy
+    }
+
+if __name__ == "__main__":
+    loglevel = (logging.INFO-1) if not os.getenv("DEBUG") else (logging.DEBUG-1)
+    _confLogger(level=loglevel)
+    # get our env vars
+    conf = _get_env_vars()
+    os.chdir(conf['workdir'])
     # auth snyk
     try:
-        auth_snyk(s_token)
+        auth_snyk(conf['s_token'])
     except AuthError as e:
         logging.error("Couldn't authenticate snyk")
         raise e
+    # replace URLs in the project.clj
+    configure_clj_pw(conf['rproxy_key'])
     # generate a pom file
     try:
-        subprocess.call(['lein.sh','pom'])
+        subprocess.call(['lein','pom'])
     except Exception as e:
         logging.error(f"Couldn't generate pom file")
         raise e
     # replace the url with the reverse proxy
-    configure_password(rproxy_key)
+    configure_mvn_pw(conf['rproxy_key'])
     # scan the file with snyk
     try:
         try:
@@ -231,18 +269,20 @@ if __name__ == "__main__":
                 '--', 
                 '"-s=settings.xml"'
             ]
-            if snyk_policy:
-                policyarg = f'--policy-path={snyk_policy}'
+            logging.debug("Args: ", str(args))
+            if conf['snyk_policy']:
+                policyarg = f'--policy-path={conf["snyk_policy"]}'
                 args.insert(2, policyarg)
             test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
         except subprocess.TimeoutExpired as e:
             logging.error('Timeout expired running snyk test')
             sys.exit(1)
         test_res = test_res.stdout.decode('utf-8')
+        logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
         test_res = json.loads(test_res)
-        if not no_monitor:
-            snyk_org = f'--org={s_org}'
-            snyk_proj = f'--project-name={s_proj}'
+        if not conf['no_monitor']:
+            snyk_org = f'--org={conf["s_org"]}'
+            snyk_proj = f'--project-name={conf["s_proj"]}'
             args = ['/puppet/snyk', 
                 'monitor', 
                 '--file=pom.xml', 
