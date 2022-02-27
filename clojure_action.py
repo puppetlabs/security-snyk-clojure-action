@@ -108,6 +108,7 @@ def _runSnyk(args):
         test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
     except subprocess.TimeoutExpired as e:
         logging.error("snyk command timed out")
+    logging.info(f'snyk test finished. Retcode: {test_res.returncode}')
     test_res = test_res.stdout.decode('utf-8')
     logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
     test_res = json.loads(test_res)
@@ -120,6 +121,7 @@ def _runSnyk(args):
                 logging.warning(f"snyk monitor returned return code: {mon_res.returncode}")
         except subprocess.TimeoutExpired as e:
             logging.error("snyk command timed out")
+        logging.info(f'snyk monitor finished. Retcode: {mon_res.returncode}')
     return test_res
 
 def _isLicenseIssue(vuln):
