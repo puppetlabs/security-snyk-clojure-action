@@ -22,8 +22,6 @@ inputs:
 outputs:
   vulns: # id of output
     description: 'Array of vulnerable packages'
-  # licenses: # id of output
-  #   description: 'Array of license issues'
 runs:
   using: 'docker'
   image: 'Dockerfile'
