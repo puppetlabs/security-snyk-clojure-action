@@ -103,6 +103,7 @@ def _auth_snyk(s_token: str):
 
 def _runSnyk(args):
     noMonitor = os.getenv("INPUT_NOMONITOR") is not None
+    logging.debug(f'noMonitor is: {noMonitor}')
     # run test
     try:
         test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
@@ -113,6 +114,7 @@ def _runSnyk(args):
     logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
     test_res = json.loads(test_res)
     if not noMonitor:
+        logging.debug('running snyk monitor')
         try:
             monargs = args
             monargs[1] = 'monitor'
@@ -141,7 +143,10 @@ def _getOutput(name:str, value:str):
     print(f'::set-output name={name}::{value}')
 
 if __name__ == "__main__":
-    _confLogger()
+    if os.getenv("INPUT_DEBUG") or os.getenv("DEBUG"):
+        _confLogger(logging.DEBUG-1)
+    else:
+        _confLogger()
     # change into the correct dir
     workdir = os.getenv("GITHUB_WORKSPACE")
     if not workdir:

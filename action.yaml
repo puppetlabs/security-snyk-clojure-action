@@ -19,6 +19,9 @@ inputs:
   snykAdditionalArgs:
     description: 'additional args to pass to the snyk command'
     required: false
+  debug:
+    description: turn on debug logging
+    required: false
 outputs:
   vulns: # id of output
     description: 'Array of vulnerable packages'
