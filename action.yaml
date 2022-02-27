@@ -1,25 +1,24 @@
 name: 'security-snyk-clojure-action'
 description: 'Scans clojure repos with snyk'
 inputs:
+  noMonitor:
+    description: If set it will run `snyk test` instead of `snyk monitor`
+    required: false
   snykToken:
     description: 'snyk access token'
     required: true
   snykOrg:
     description: 'snyk org to write results to'
-    required: true
+    required: false
   snykProject:
-    description: 'snyk org to write results to'
-    required: true
-  rproxyKey:
-    description: 'key for the reverse proxy'
-    required: true
-  noMonitor:
-    description: 'allows skipping the snyk monitor step'
+    description: 'snyk project to write results to'
     required: false
   snykPolicy:
     description: 'the path to a .snyk file (https://docs.snyk.io/features/fixing-and-prioritizing-issues/policies/the-.snyk-file)'
     required: false
-  
+  snykAdditionalArgs:
+    description: 'additional args to pass to the snyk command'
+    required: false
 outputs:
   vulns: # id of output
     description: 'Array of vulnerable packages'

@@ -1,0 +1,293 @@
+{
+    "vulnerabilities": [
+      {
+        "id": "snyk:lic:maven:org.clojure:clojure:EPL-1.0",
+        "packageName": "org.clojure:clojure",
+        "semver": {
+          "vulnerable": [
+            "[0,)"
+          ]
+        },
+        "creationTime": "2022-02-25T22:08:58.941Z",
+        "description": "EPL-1.0 license",
+        "language": "java",
+        "license": "EPL-1.0",
+        "packageManager": "maven",
+        "publicationTime": "2022-02-25T22:08:58.941Z",
+        "title": "EPL-1.0 license",
+        "type": "license",
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "from": [
+          "puppetlabs:clj-parent@4.8.5-SNAPSHOT",
+          "org.clojure:clojure@1.10.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": "org.clojure:clojure",
+        "version": "1.10.1"
+      },
+      {
+        "id": "snyk:lic:maven:org.clojure:core.specs.alpha:EPL-1.0",
+        "packageName": "org.clojure:core.specs.alpha",
+        "semver": {
+          "vulnerable": [
+            "[0,)"
+          ]
+        },
+        "creationTime": "2022-02-25T03:13:00.318Z",
+        "description": "EPL-1.0 license",
+        "language": "java",
+        "license": "EPL-1.0",
+        "packageManager": "maven",
+        "publicationTime": "2022-02-25T03:13:00.318Z",
+        "title": "EPL-1.0 license",
+        "type": "license",
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "from": [
+          "puppetlabs:clj-parent@4.8.5-SNAPSHOT",
+          "org.clojure:clojure@1.10.1",
+          "org.clojure:core.specs.alpha@0.2.44"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": "org.clojure:core.specs.alpha",
+        "version": "0.2.44"
+      },
+      {
+        "id": "snyk:lic:maven:org.clojure:spec.alpha:EPL-1.0",
+        "packageName": "org.clojure:spec.alpha",
+        "semver": {
+          "vulnerable": [
+            "[0,)"
+          ]
+        },
+        "creationTime": "2022-02-24T20:34:32.060Z",
+        "description": "EPL-1.0 license",
+        "language": "java",
+        "license": "EPL-1.0",
+        "packageManager": "maven",
+        "publicationTime": "2022-02-24T20:34:32.060Z",
+        "title": "EPL-1.0 license",
+        "type": "license",
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "from": [
+          "puppetlabs:clj-parent@4.8.5-SNAPSHOT",
+          "org.clojure:clojure@1.10.1",
+          "org.clojure:spec.alpha@0.2.176"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": "org.clojure:spec.alpha",
+        "version": "0.2.176"
+      }
+    ],
+    "ok": false,
+    "dependencyCount": 3,
+    "org": "sectest",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "isPrivate": true,
+    "licensesPolicy": {
+      "severities": {},
+      "orgLicenseRules": {
+        "AGPL-1.0": {
+          "licenseType": "AGPL-1.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "AGPL-3.0": {
+          "licenseType": "AGPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Artistic-1.0": {
+          "licenseType": "Artistic-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "Artistic-2.0": {
+          "licenseType": "Artistic-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CDDL-1.0": {
+          "licenseType": "CDDL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CPOL-1.02": {
+          "licenseType": "CPOL-1.02",
+          "severity": "high",
+          "instructions": ""
+        },
+        "EPL-1.0": {
+          "licenseType": "EPL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "GPL-2.0": {
+          "licenseType": "GPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "GPL-3.0": {
+          "licenseType": "GPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "LGPL-2.0": {
+          "licenseType": "LGPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-2.1": {
+          "licenseType": "LGPL-2.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-3.0": {
+          "licenseType": "LGPL-3.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-1.1": {
+          "licenseType": "MPL-1.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-2.0": {
+          "licenseType": "MPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MS-RL": {
+          "licenseType": "MS-RL",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "SimPL-2.0": {
+          "licenseType": "SimPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        }
+      }
+    },
+    "packageManager": "maven",
+    "projectId": "dfde1b6b-9022-41eb-9d1f-feea8e9af5d0",
+    "ignoreSettings": null,
+    "summary": "3 vulnerable dependency paths",
+    "remediation": {
+      "unresolved": [
+        {
+          "id": "snyk:lic:maven:org.clojure:clojure:EPL-1.0",
+          "packageName": "org.clojure:clojure",
+          "semver": {
+            "vulnerable": [
+              "[0,)"
+            ]
+          },
+          "creationTime": "2022-02-25T22:08:58.941Z",
+          "description": "EPL-1.0 license",
+          "language": "java",
+          "license": "EPL-1.0",
+          "packageManager": "maven",
+          "publicationTime": "2022-02-25T22:08:58.941Z",
+          "title": "EPL-1.0 license",
+          "type": "license",
+          "severity": "medium",
+          "from": [
+            "puppetlabs:clj-parent@4.8.5-SNAPSHOT",
+            "org.clojure:clojure@1.10.1"
+          ],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": false,
+          "isRuntime": false,
+          "name": "org.clojure:clojure",
+          "version": "1.10.1",
+          "severityWithCritical": "medium"
+        },
+        {
+          "id": "snyk:lic:maven:org.clojure:core.specs.alpha:EPL-1.0",
+          "packageName": "org.clojure:core.specs.alpha",
+          "semver": {
+            "vulnerable": [
+              "[0,)"
+            ]
+          },
+          "creationTime": "2022-02-25T03:13:00.318Z",
+          "description": "EPL-1.0 license",
+          "language": "java",
+          "license": "EPL-1.0",
+          "packageManager": "maven",
+          "publicationTime": "2022-02-25T03:13:00.318Z",
+          "title": "EPL-1.0 license",
+          "type": "license",
+          "severity": "medium",
+          "from": [
+            "puppetlabs:clj-parent@4.8.5-SNAPSHOT",
+            "org.clojure:clojure@1.10.1",
+            "org.clojure:core.specs.alpha@0.2.44"
+          ],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": false,
+          "isRuntime": false,
+          "name": "org.clojure:core.specs.alpha",
+          "version": "0.2.44",
+          "severityWithCritical": "medium"
+        },
+        {
+          "id": "snyk:lic:maven:org.clojure:spec.alpha:EPL-1.0",
+          "packageName": "org.clojure:spec.alpha",
+          "semver": {
+            "vulnerable": [
+              "[0,)"
+            ]
+          },
+          "creationTime": "2022-02-24T20:34:32.060Z",
+          "description": "EPL-1.0 license",
+          "language": "java",
+          "license": "EPL-1.0",
+          "packageManager": "maven",
+          "publicationTime": "2022-02-24T20:34:32.060Z",
+          "title": "EPL-1.0 license",
+          "type": "license",
+          "severity": "medium",
+          "from": [
+            "puppetlabs:clj-parent@4.8.5-SNAPSHOT",
+            "org.clojure:clojure@1.10.1",
+            "org.clojure:spec.alpha@0.2.176"
+          ],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": false,
+          "isRuntime": false,
+          "name": "org.clojure:spec.alpha",
+          "version": "0.2.176",
+          "severityWithCritical": "medium"
+        }
+      ],
+      "upgrade": {},
+      "patch": {},
+      "ignore": {},
+      "pin": {}
+    },
+    "filesystemPolicy": false,
+    "filtered": {
+      "ignore": [],
+      "patch": []
+    },
+    "uniqueCount": 3,
+    "projectName": "puppetlabs:clj-parent",
+    "displayTargetFile": "pom.xml",
+    "path": "/Users/jeremy.mill/Documents/clj-parent"
+  }
