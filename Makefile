@@ -1,6 +1,6 @@
-# testFolder = pe-puppet-server-extensions
+testFolder = pe-puppet-server-extensions
 # testFolder = code-manager
-testFolder = clj-parent
+# testFolder = clj-parent
 
 delete:
 	-docker rm clojure_action
@@ -9,7 +9,7 @@ build:
 copy_testfiles:
 	-rm -rf ./testfiles/$(testFolder)
 	-mkdir -p ./testfiles/$(testFolder)
-	cp -r /Users/jeremy.mill/Documents/forks/$(testFolder)/ ./testfiles/$(testFolder)
+	cp -r /Users/jeremy.mill/Documents/$(testFolder)/ ./testfiles/$(testFolder)
 
 itest:
 	make delete
@@ -20,7 +20,6 @@ itest:
 		-e INPUT_SNYKPROJECT=puppetserver \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
-		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
 		-e INPUT_NOMONITOR=true \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
 		-t clojure_action 

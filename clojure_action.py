@@ -93,7 +93,7 @@ def _getArgs():
     if additional_args:
         logging.info('adding additional snyk args')
         snykArgs = snykArgs + additional_args.split(' ')
-    logging.info(f"snyk args: {','.join(snykArgs)[:-1]}")
+    logging.info(f"snyk args: {','.join(snykArgs)[:]}")
     return snykArgs
 
 def _auth_snyk(s_token: str):
