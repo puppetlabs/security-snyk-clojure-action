@@ -18,6 +18,11 @@ class AuthError(Exception):
     def __str__(self):
         return(repr(self.value))
 
+def _exit_set_error(retcode=1):
+    fo = _getOutput('failure', 'true')
+    vo = _getOutput('vulns', '')
+    sys.exit(retcode)
+
 def addLoggingLevel(levelName, levelNum, methodName=None):
     """
     Comprehensively adds a new logging level to the `logging` module and the
@@ -109,10 +114,10 @@ def _run_lein():
         if lein_res.returncode != 0:
             logging.error('Error calling lein pom.')
             logging.error(f'lein stderr: {lein_res.stderr.decode("utf-8")}')
-            sys.exit(1)
+            _exit_set_error(1)
     except subprocess.TimeoutExpired:
         logging.error("lein pom timed out")
-        sys.exit(1)
+        _exit_set_error(1)
 
 def _runSnyk(args):
     noMonitor = os.getenv("INPUT_NOMONITOR") is not None
@@ -180,5 +185,7 @@ if __name__ == "__main__":
     ostring = json.dumps(vulns, indent=2) if len(vulns) > 0 else ''
     output = _getOutput('vulns', ostring)
     print(output)
+    fo = _getOutput('failure', 'false')
+    print(fo)
     
     

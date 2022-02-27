@@ -25,6 +25,8 @@ inputs:
 outputs:
   vulns: # id of output
     description: 'Array of vulnerable packages'
+  failure:
+    description: 'true if there was an error, false if not'
 runs:
   using: 'docker'
   image: 'Dockerfile'
