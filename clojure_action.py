@@ -183,6 +183,7 @@ if __name__ == "__main__":
     vulns = _parseResults(test_res)
     # output the vulns as a json formatted string
     ostring = json.dumps(vulns, indent=2) if len(vulns) > 0 else ''
+    ostring = ostring.replace('\n', '%0A').replace('\t','%09')
     output = _getOutput('vulns', ostring)
     print(output)
     fo = _getOutput('failure', 'false')
