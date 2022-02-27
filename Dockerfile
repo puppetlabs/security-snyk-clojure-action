@@ -5,7 +5,7 @@ RUN mkdir -p /puppet/
 ADD clojure_action.py /puppet/clojure_action
 RUN chmod 751 /puppet/clojure_action
 # download the snyk CLI
-ADD https://github.com/snyk/snyk/releases/download/v1.720.0/snyk-linux /puppet/snyk 
+ADD https://github.com/snyk/snyk/releases/latest/download/snyk-linux /puppet/snyk
 RUN chmod 751 /puppet/snyk 
 # add puppet to the path
 ENV PATH="/puppet/:${PATH}"

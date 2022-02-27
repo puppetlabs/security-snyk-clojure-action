@@ -74,11 +74,9 @@ def _confLogger(level=logging.INFO-1):
     addLoggingLevel('notice', logging.INFO+1)
 
 def _getArgs():
-    noMonitor = os.getenv("INPUT_NOMONITOR")
-    command = 'test' if noMonitor else 'monitor'
     # setup the args for snyk
     snykArgs = ["snyk",
-                command,
+                "test",
                 "--file=pom.xml",
                 "--json"]
     # setup the optional args
@@ -104,6 +102,8 @@ def _auth_snyk(s_token: str):
         raise AuthError("error authenticating")
 
 def _runSnyk(args):
+    noMonitor = os.getenv("INPUT_NOMONITOR") is not None
+    # run test
     try:
         test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
     except subprocess.TimeoutExpired as e:
@@ -111,6 +111,15 @@ def _runSnyk(args):
     test_res = test_res.stdout.decode('utf-8')
     logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
     test_res = json.loads(test_res)
+    if not noMonitor:
+        try:
+            monargs = args
+            monargs[1] = 'monitor'
+            mon_res = subprocess.run(monargs, stdout=subprocess.PIPE, check=False, timeout=900)
+            if mon_res.returncode != 0:
+                logging.warning(f"snyk monitor returned return code: {mon_res.returncode}")
+        except subprocess.TimeoutExpired as e:
+            logging.error("snyk command timed out")
     return test_res
 
 def _isLicenseIssue(vuln):

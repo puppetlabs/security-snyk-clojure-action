@@ -23,6 +23,17 @@ itest:
 		-e INPUT_NOMONITOR=true \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
 		-t clojure_action 
+itest_monitor:
+	make delete
+	make build
+	make copy_testfiles
+	docker run --name clojure_action \
+		-e INPUT_SNYKORG=sectest \
+		-e INPUT_SNYKPROJECT=puppetserver \
+		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
+		-e GITHUB_WORKSPACE=/github/workspace \
+		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
+		-t clojure_action 
 itest_ignore:
 	make delete
 	make build
