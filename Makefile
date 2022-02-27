@@ -30,6 +30,7 @@ itest_monitor:
 	docker run --name clojure_action \
 		-e INPUT_SNYKORG=sectest \
 		-e INPUT_SNYKPROJECT=puppetserver \
+		-e INPUT_DEBUG=true \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \

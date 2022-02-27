@@ -105,11 +105,10 @@ def _run_lein():
     '''we should already be in the working directory before calling this'''
     args = ['lein', 'pom']
     try:
-        lein_res = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=900)
-        if lein_res != 0:
-            logging.error('Error calling lein pom')
-            logging.debug(f'lein pom Stdout: {lein_res.stdout.decode("utf-8")}')
-            logging.debug(f'lein pom Stderr: {lein_res.stderr.decode("utf-8")}')
+        lein_res = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=900)
+        if lein_res.returncode != 0:
+            logging.error('Error calling lein pom.')
+            logging.error(f'lein stderr: {lein_res.stderr.decode("utf-8")}')
             sys.exit(1)
     except subprocess.TimeoutExpired:
         logging.error("lein pom timed out")
