@@ -177,7 +177,7 @@ if __name__ == "__main__":
     # parse the results for vulnerabilities
     vulns = _parseResults(test_res)
     # output the vulns as a json formatted string
-    ostring = json.dumps(vulns) if len(vulns) > 0 else ''
+    ostring = json.dumps(vulns, indent=2) if len(vulns) > 0 else ''
     output = _getOutput('vulns', ostring)
     print(output)
     
