@@ -181,9 +181,9 @@ def _pprint_results(vulns):
         lines.append(line)
     return "=====\n".join(lines)
 
-
 def _getOutput(name:str, value:str):
     #echo "::set-output name=action_fruit::strawberry"
+    value = value.replace('\n','%0A')
     print(f'::set-output name={name}::{value}')
 
 if __name__ == "__main__":
