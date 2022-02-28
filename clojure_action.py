@@ -127,7 +127,11 @@ def _runSnyk(args):
         test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
     except subprocess.TimeoutExpired as e:
         logging.error("snyk command timed out")
+        _exit_set_error(1)
     logging.info(f'snyk test finished. Retcode: {test_res.returncode}')
+    if test_res.returncode != 0 or test_res.returncode != 1:
+        logging.error("snyk returned a failure return code")
+        _exit_set_error(1)
     test_res = test_res.stdout.decode('utf-8')
     logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
     test_res = json.loads(test_res)
@@ -207,6 +211,7 @@ if __name__ == "__main__":
     # ostring = ostring.replace('\n', '%0A').replace('\t','%09').replace('{','\\{').replace('}', '\\}')
     # output = _getOutput('vulns', ostring)
     output = _pprint_results(vulns)
+    output = _getOutput('vulns', output)
     print(output)
     fo = _getOutput('failure', 'false')
     print(fo)
