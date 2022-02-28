@@ -129,7 +129,7 @@ def _runSnyk(args):
         logging.error("snyk command timed out")
         _exit_set_error(1)
     logging.info(f'snyk test finished. Retcode: {test_res.returncode}')
-    if test_res.returncode != 0 or test_res.returncode != 1:
+    if test_res.returncode > 1:
         logging.error("snyk returned a failure return code")
         logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
         _exit_set_error(1)
