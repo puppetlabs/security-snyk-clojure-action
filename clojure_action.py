@@ -131,6 +131,7 @@ def _runSnyk(args):
     logging.info(f'snyk test finished. Retcode: {test_res.returncode}')
     if test_res.returncode != 0 or test_res.returncode != 1:
         logging.error("snyk returned a failure return code")
+        logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
         _exit_set_error(1)
     test_res = test_res.stdout.decode('utf-8')
     logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
@@ -206,10 +207,6 @@ if __name__ == "__main__":
     test_res = _runSnyk(snykArgs)
     # parse the results for vulnerabilities
     vulns = _parseResults(test_res)
-    # output the vulns as a json formatted string
-    # ostring = json.dumps(vulns, indent=2) if len(vulns) > 0 else ''
-    # ostring = ostring.replace('\n', '%0A').replace('\t','%09').replace('{','\\{').replace('}', '\\}')
-    # output = _getOutput('vulns', ostring)
     output = _pprint_results(vulns)
     output = _getOutput('vulns', output)
     print(output)
