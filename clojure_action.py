@@ -154,7 +154,28 @@ def _parseResults(test_res):
     vulns = test_res.get('vulnerabilities', [])
     if vulns:
         vulns = [v for v in vulns if not _isLicenseIssue(v)]
-    return vulns
+    ov = []
+    for vuln in vulns:
+        o = {
+            'ID': vuln.get('id', 'UNKNOWN'),
+            'Title': vuln.get('title', 'UNKNOWN'),
+            'Name': vuln.get('name', 'UNKNOWN'),
+            'Severity': vuln.get('severity', 'UNKNOWN'),
+        }
+        if o['ID'] != 'UNKNOWN':
+            o['URL'] = f'https://snyk.io/vuln/{o["ID"]}'
+        ov.append(o)
+    return ov
+
+def _pprint_results(vulns):
+    lines = []
+    for vuln in vulns:
+        line=''
+        for k,v in vuln.items():
+            line = line + f"{k}: {v}\n"
+        lines.append(line)
+    return "=====\n".join(lines)
+
 
 def _getOutput(name:str, value:str):
     #echo "::set-output name=action_fruit::strawberry"
@@ -182,9 +203,10 @@ if __name__ == "__main__":
     # parse the results for vulnerabilities
     vulns = _parseResults(test_res)
     # output the vulns as a json formatted string
-    ostring = json.dumps(vulns, indent=2) if len(vulns) > 0 else ''
-    ostring = ostring.replace('\n', '%0A').replace('\t','%09').replace('{','\\{').replace('}', '\\}')
-    output = _getOutput('vulns', ostring)
+    # ostring = json.dumps(vulns, indent=2) if len(vulns) > 0 else ''
+    # ostring = ostring.replace('\n', '%0A').replace('\t','%09').replace('{','\\{').replace('}', '\\}')
+    # output = _getOutput('vulns', ostring)
+    output = _pprint_results(vulns)
     print(output)
     fo = _getOutput('failure', 'false')
     print(fo)
