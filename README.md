@@ -3,6 +3,8 @@
 This action runs snyk on clojure repo, using `leningen` to generate a pom.xml file
 
 ## Inputs
+### twinGateKey (not required)
+Uses the TwinGate VPN to replace reverse proxy connections.
 
 ### snykToken (required)
 This input is the secret snyk token
@@ -12,9 +14,6 @@ The organization in snyk to send results to
 
 ### snykProject (required)
 The project name in snyk
-
-### rproxyKey (required)
-The reverse proxy API key
 
 ### noMonitor (not required)
 If you just want to run `snyk test` and not `snyk monitor` you should set this input to `true`
