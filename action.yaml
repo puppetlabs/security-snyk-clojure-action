@@ -1,6 +1,9 @@
 name: 'security-snyk-clojure-action'
 description: 'Scans clojure repos with snyk'
 inputs:
+  twinGateKey:
+    description: 'Replaces the need for a reverse proxy and uses Twingate VPN instead'
+    required: true
   snykToken:
     description: 'snyk access token'
     required: true
@@ -9,9 +12,6 @@ inputs:
     required: true
   snykProject:
     description: 'snyk org to write results to'
-    required: true
-  rproxyKey:
-    description: 'key for the reverse proxy'
     required: true
   noMonitor:
     description: 'allows skipping the snyk monitor step'
