@@ -10,6 +10,9 @@ jobs:
  snyk_clojure:
    runs-on: ubuntu-latest
    steps:
+    - uses: twingate/github-action@v1
+      with:
+        service-key: ${{ secrets.TWINGATE_KEY }}
     - name: checkout the current PR
       uses: actions/checkout@v2
       with:
@@ -20,7 +23,6 @@ jobs:
       uses: puppetlabs/security-snyk-clojure-action@v1.1.0
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
-        rproxyKey: ${{ secrets.RPROXY_KEY }}
         snykOrg: 'sectest'
         snykProject: 'puppetserver'
         snykPolicy: '.snyk'
