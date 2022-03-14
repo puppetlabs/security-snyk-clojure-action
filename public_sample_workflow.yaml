@@ -10,6 +10,9 @@ jobs:
    runs-on: ubuntu-latest
    if: contains(github.event.pull_request.labels.*.name, 'safe to test')
    steps:
+    - uses: twingate/github-action@v1
+      with:
+        service-key: ${{ secrets.TWINGATE_KEY }}
     - name: checkout the current PR
       uses: actions/checkout@v2
       with:
@@ -20,7 +23,6 @@ jobs:
       uses: puppetlabs/security-snyk-clojure-action@main
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
-        rproxyKey: ${{ secrets.RPROXY_KEY }}
         snykOrg: 'sectest'
         snykProject: 'puppetserver'
     - name: Check output
