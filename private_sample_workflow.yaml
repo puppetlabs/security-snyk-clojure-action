@@ -7,6 +7,9 @@ jobs:
  snyk_scan:
    runs-on: ubuntu-latest
    steps:
+    - uses: twingate/github-action@v1
+      with:
+        service-key: ${{ secrets.TWINGATE_KEY }}
     - name: checkout the current PR
       uses: actions/checkout@v2
       with:
@@ -17,7 +20,6 @@ jobs:
       uses: puppetlabs/security-snyk-clojure-action@main
       with:
         snykToken: ${{ secrets.SNYK_PE_TOKEN }}
-        rproxyKey: ${{ secrets.SEC_RPROXY_KEY }}
         snykOrg: 'puppet-enterprise'
         snykProject: 'pe-console-services'
         snykPolicy: '.snyk'
