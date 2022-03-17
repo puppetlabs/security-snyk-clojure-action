@@ -12,19 +12,17 @@ jobs:
    steps:
     - uses: twingate/github-action@v1
       with:
-        service-key: ${{ secrets.TWINGATE_KEY }}
+        service-key: ${{ secrets.TWINGATE_KEY }} # TWINGATE_PUBLIC_REPO_KEY for public repos
     - name: checkout the current PR
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        fetch-depth: 1
         persist-credentials: false
     - name: Run Clojure Snyk Scan
       id: scan
-      uses: puppetlabs/security-snyk-clojure-action@v1.1.0
+      uses: puppetlabs/security-snyk-clojure-action@v2
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
-        snykOrg: 'sectest'
-        snykProject: 'puppetserver'
         snykPolicy: '.snyk'
     - name: Check output
       if: steps.scan.outputs.vulns != ''
