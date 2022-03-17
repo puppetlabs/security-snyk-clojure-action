@@ -10,6 +10,9 @@ jobs:
  snyk_clojure:
    runs-on: ubuntu-latest
    steps:
+    - uses: twingate/github-action@v1
+      with:
+        service-key: ${{ secrets.TWINGATE_KEY }} # TWINGATE_PUBLIC_REPO_KEY for public repos
     - name: checkout the current PR
       uses: actions/checkout@v2
       with:
