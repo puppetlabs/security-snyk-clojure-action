@@ -1,6 +1,6 @@
-# testFolder = pe-puppet-server-extensions
+testFolder = pe-puppet-server-extensions
 # testFolder = code-manager
-testFolder = clj-parent
+# testFolder = clj-parent
 
 delete:
 	-docker rm clojure_action
@@ -9,7 +9,7 @@ build:
 copy_testfiles:
 	-rm -rf ./testfiles/$(testFolder)
 	-mkdir -p ./testfiles/$(testFolder)
-	cp -r /Users/jeremy.mill/Documents/forks/$(testFolder)/ ./testfiles/$(testFolder)
+	cp -r /Users/jeremy.mill/Documents/$(testFolder)/ ./testfiles/$(testFolder)
 
 itest:
 	make delete
@@ -18,9 +18,22 @@ itest:
 	docker run --name clojure_action \
 		-e INPUT_SNYKORG=sectest \
 		-e INPUT_SNYKPROJECT=puppetserver \
+		-e INPUT_DEBUG=true \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
 		-e INPUT_NOMONITOR=true \
+		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
+		-t clojure_action 
+itest_monitor:
+	make delete
+	make build
+	make copy_testfiles
+	docker run --name clojure_action \
+		-e INPUT_SNYKORG=sectest \
+		-e INPUT_SNYKPROJECT=puppetserver \
+		-e INPUT_DEBUG=true \
+		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
+		-e GITHUB_WORKSPACE=/github/workspace \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
 		-t clojure_action 
 itest_ignore:

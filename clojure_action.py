@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
-import json
-import os
-import sys
-import subprocess
 import logging
-import xml.etree.ElementTree as ET
-from base64 import b64encode as b64e
+import os
+import subprocess
+import sys
+import json
 
-TO_REPLACE = {
-    "artifactory": "https://artifactory.delivery.puppetlabs.net",
-    "builds": "https://builds.delivery.puppetlabs.net",
+OPT_ARGS = {
+    'INPUT_SNYKPOLICY': '--policy-path={evar}',
+    'INPUT_SNYKORG': '--org={evar}',
+    'INPUT_SNYKPROJECT': '--project={evar}'
 }
-REPLACE_BASE = "builds-portal.puppet.net"
-REPLACE_WITH = f"https://{REPLACE_BASE}"
 
 class AuthError(Exception):
     def __init__(self, value):
@@ -21,122 +18,11 @@ class AuthError(Exception):
     def __str__(self):
         return(repr(self.value))
 
-class VulnReport():
-    def _getVulnID(self, vuln)->str:
-        '''returns the CVE ids'''
-        id_string = vuln['id']
-        try:
-            cveid = vuln['identifiers']['CVE']
-            cveid = '|'.join(cveid)
-            if cveid:
-                id_string = f'{id_string}|{cveid}'
-        except KeyError:
-            pass
-        return id_string
-        
-    def __init__(self, vuln: dict):
-        self._vuln = vuln
-        # name
-        try:
-            self.package_name = vuln['packageName']
-        except KeyError:
-            try:
-                self.package_name = vuln['moduleName']
-            except KeyError:
-                self.package_name = 'UKNOWN'
-        # version
-        try:
-            self.version = vuln['version']
-        except KeyError:
-            self.version = 'UNKNOWN'
-        # vuln id
-        self.vuln_string = self._getVulnID(vuln)
-    
-    def __eq__(self, other):
-        if isinstance(other, VulnReport):
-            return self.__key() == other.__key()
-        return NotImplemented
+def _exit_set_error(retcode=1):
+    fo = _getOutput('failure', 'true')
+    vo = _getOutput('vulns', '')
+    sys.exit(retcode)
 
-    def __key(self):
-        s_ids = self.vuln_string.split(',')
-        s_ids.sort()
-        v_sorted = ','.join(s_ids)
-        return (self.package_name, self.version, v_sorted)
-    
-    def __hash__(self) -> int:
-        return hash(self.__key())
-
-    def __str__(self):
-        return f'{self.package_name}-{self.version}: {self.vuln_string}'
-    def __repr__(self) -> str:
-        return self.__str__()
-
-def configure_clj_pw(key, filepath="./project.clj"):
-    logging.notice("starting url replacement in project")
-    with open(filepath, 'r') as f:
-        cljtext = f.read()
-    for u,r in TO_REPLACE.items():
-        tr = REPLACE_WITH.replace("https://", f'https://{u}:{key}@')
-        cljtext = cljtext.replace(r, tr)
-    with open(filepath, 'w') as f:
-        f.write(cljtext)
-
-def configure_mvn_pw(key, filepath="./pom.xml"):
-    # remove auth string from URLs if they exist
-    with open(filepath, 'r') as f:
-        pomtext = f.read()
-    for u, r in TO_REPLACE.items():
-        r = r.replace('https://', '')
-        pomtext = pomtext.replace(f'{u}:{key}@{REPLACE_BASE}', r)
-    # pomtext = pomtext.replace(f'artifactory:{key}@builds-portal.puppet.net', 'artifactory.delivery.puppetlabs.net')
-    # pomtext = pomtext.replace(f'builds:{key}@builds-portal.puppet.net', 'builds.delivery.puppetlabs.net')
-    with open(filepath, 'w') as f:
-        f.write(pomtext)
-    #
-    settings_xml = '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">\n'
-    settings_xml += "<servers>\n"
-    # parse the xml
-    logging.notice("starting XML parse")
-    tree = ET.parse(filepath)
-    root = tree.getroot()
-    repos = root.findall('{http://maven.apache.org/POM/4.0.0}repositories')[0]
-    for repo in repos:
-        url = repo.find('{http://maven.apache.org/POM/4.0.0}url')
-        id = repo.find('{http://maven.apache.org/POM/4.0.0}id')
-        if url.text.startswith("https://artifactory.delivery.puppetlabs.net/"):
-            username = "artifactory"
-        elif url.text.startswith("https://builds.delivery.puppetlabs.net"):
-            username = "builds"
-        else:
-            skipping = url.text.replace(key, '***')
-            logging.notice(f"skipping: {skipping}")
-            continue
-        settings_xml += "\t<server>\n"
-        settings_xml += f"\t\t<id>{id.text}</id>\n"
-        settings_xml += f"\t\t<configuration>\n\t\t<httpHeaders>\n\t\t\t<property>\n"
-        settings_xml += f"\t\t\t\t<name>Authorization</name>\n"
-        auth_header = "Basic " + b64e(f"{username}:{key}".encode('utf-8')).decode('utf-8')
-        settings_xml += f"\t\t\t\t<value>{auth_header}</value>\n"
-        settings_xml += f"\t\t\t</property>\n\t\t</httpHeaders>\n\t\t</configuration>\n"
-        settings_xml += "\t</server>\n"
-            
-    # "close" settings
-    settings_xml += "</servers>\n"
-    settings_xml += "</settings>\n"
-    logging.notice("finished XML parse")
-    # find and replace the url
-    logging.notice("starting url replacement in pom")
-    with open(filepath, 'r') as f:
-        pomtext = f.read()
-    for _, replace in TO_REPLACE.items():
-        pomtext = pomtext.replace(replace, REPLACE_WITH)
-    with open(filepath, 'w') as f:
-        f.write(pomtext)
-    logging.notice("finished url replacement")
-    with open('./settings.xml', 'w') as f:
-        f.write(settings_xml)
-    logging.notice("finished writing settings xml")
-    
 def addLoggingLevel(levelName, levelNum, methodName=None):
     """
     Comprehensively adds a new logging level to the `logging` module and the
@@ -192,128 +78,139 @@ def _confLogger(level=logging.INFO-1):
     # add notice handler
     addLoggingLevel('notice', logging.INFO+1)
 
-def auth_snyk(s_token: str):
+def _getArgs():
+    # setup the args for snyk
+    snykArgs = ["snyk",
+                "test",
+                "--file=pom.xml",
+                "--json"]
+    # setup the optional args
+    for e, s in OPT_ARGS.items():
+        e_val = os.getenv(e)
+        if e_val:
+            newarg = s.format(evar=e_val)
+            logging.info(f"setting new arg: {newarg}")
+            snykArgs.append(newarg)
+    # if there are additional args split em up and add em
+    additional_args = os.getenv('INPUT_SNYKADDITIONALARGS')
+    if additional_args:
+        logging.info('adding additional snyk args')
+        snykArgs = snykArgs + additional_args.split(' ')
+    logging.info(f"snyk args: {','.join(snykArgs)[:]}")
+    return snykArgs
+
+def _auth_snyk(s_token: str):
     # auth snyk
     auth_result = subprocess.call(['/puppet/snyk', 'auth', s_token])
     if auth_result != 0:
         logging.error(f"Error authenticating to snyk. Return code: {auth_result}")
         raise AuthError("error authenticating")
 
-def _setOutput(name:str, value:str):
+def _run_lein():
+    '''we should already be in the working directory before calling this'''
+    args = ['lein', 'pom']
+    try:
+        lein_res = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=900)
+        if lein_res.returncode != 0:
+            logging.error('Error calling lein pom.')
+            logging.error(f'lein stderr: {lein_res.stderr.decode("utf-8")}')
+            _exit_set_error(1)
+    except subprocess.TimeoutExpired:
+        logging.error("lein pom timed out")
+        _exit_set_error(1)
+
+def _runSnyk(args):
+    noMonitor = os.getenv("INPUT_NOMONITOR") is not None
+    logging.debug(f'noMonitor is: {noMonitor}')
+    # run test
+    try:
+        test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
+    except subprocess.TimeoutExpired as e:
+        logging.error("snyk command timed out")
+        _exit_set_error(1)
+    logging.info(f'snyk test finished. Retcode: {test_res.returncode}')
+    if test_res.returncode > 1:
+        logging.error("snyk returned a failure return code")
+        logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
+        _exit_set_error(1)
+    test_res = test_res.stdout.decode('utf-8')
+    logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
+    test_res = json.loads(test_res)
+    if not noMonitor:
+        logging.debug('running snyk monitor')
+        try:
+            monargs = args
+            monargs[1] = 'monitor'
+            mon_res = subprocess.run(monargs, stdout=subprocess.PIPE, check=False, timeout=900)
+            if mon_res.returncode != 0:
+                logging.warning(f"snyk monitor returned return code: {mon_res.returncode}")
+        except subprocess.TimeoutExpired as e:
+            logging.error("snyk command timed out")
+        logging.info(f'snyk monitor finished. Retcode: {mon_res.returncode}')
+    return test_res
+
+def _isLicenseIssue(vuln):
+    try:
+        return vuln.get('id', '').startswith('snyk:lic:')
+    except:
+        return True
+
+def _parseResults(test_res):
+    vulns = test_res.get('vulnerabilities', [])
+    if vulns:
+        vulns = [v for v in vulns if not _isLicenseIssue(v)]
+    ov = []
+    for vuln in vulns:
+        o = {
+            'ID': vuln.get('id', 'UNKNOWN'),
+            'Title': vuln.get('title', 'UNKNOWN'),
+            'Name': vuln.get('name', 'UNKNOWN'),
+            'Severity': vuln.get('severity', 'UNKNOWN'),
+        }
+        if o['ID'] != 'UNKNOWN':
+            o['URL'] = f'https://snyk.io/vuln/{o["ID"]}'
+        ov.append(o)
+    return ov
+
+def _pprint_results(vulns):
+    lines = []
+    for vuln in vulns:
+        line=''
+        for k,v in vuln.items():
+            line = line + f"{k}: {v}\n"
+        lines.append(line)
+    return "=====\n".join(lines)
+
+def _getOutput(name:str, value:str):
     #echo "::set-output name=action_fruit::strawberry"
+    value = value.replace('\n','%0A')
     print(f'::set-output name={name}::{value}')
 
-def _get_env_vars():
-    s_token = os.getenv("INPUT_SNYKTOKEN")
-    if not s_token:
-        raise ValueError("no snyk token")
-    no_monitor = os.getenv('INPUT_NOMONITOR')
-    if not no_monitor:
-        no_monitor=False
+if __name__ == "__main__":
+    if os.getenv("INPUT_DEBUG") or os.getenv("DEBUG"):
+        _confLogger(logging.DEBUG-1)
     else:
-        no_monitor=True
-    s_org = os.getenv("INPUT_SNYKORG")
-    if not s_org and not no_monitor:
-        raise ValueError("no snyk org")
-    s_proj = os.getenv("INPUT_SNYKPROJECT")
-    if not s_proj and not no_monitor:
-        raise ValueError("no snyk org")
-    rproxy_key = os.getenv("INPUT_RPROXYKEY")
-    if not rproxy_key :
-        raise ValueError("no rproxy key")
+        _confLogger()
+    # change into the correct dir
     workdir = os.getenv("GITHUB_WORKSPACE")
     if not workdir:
+        logging.error("No github workspace set!")
         raise ValueError("no github workspace!")
-    snyk_policy = os.getenv("INPUT_SNYKPOLICY")
-    return {
-        "s_token": s_token,
-        "no_monitor": no_monitor,
-        "s_org": s_org,
-        "s_proj": s_proj,
-        "rproxy_key": rproxy_key,
-        "workdir": workdir,
-        "snyk_policy": snyk_policy
-    }
-
-if __name__ == "__main__":
-    loglevel = (logging.INFO-1) if not os.getenv("DEBUG") else (logging.DEBUG-1)
-    _confLogger(level=loglevel)
-    # get our env vars
-    conf = _get_env_vars()
-    os.chdir(conf['workdir'])
+    os.chdir(workdir)
     # auth snyk
-    try:
-        auth_snyk(conf['s_token'])
-    except AuthError as e:
-        logging.error("Couldn't authenticate snyk")
-        raise e
-    # replace URLs in the project.clj
-    configure_clj_pw(conf['rproxy_key'])
-    # generate a pom file
-    try:
-        subprocess.call(['lein','pom'])
-    except Exception as e:
-        logging.error(f"Couldn't generate pom file")
-        raise e
-    # replace the url with the reverse proxy
-    configure_mvn_pw(conf['rproxy_key'])
-    # scan the file with snyk
-    try:
-        try:
-            logging.notice("Running snyk test")
-            args = ['/puppet/snyk', 
-                'test', 
-                '--severity-threshold=medium', 
-                '--json', 
-                '--file=pom.xml', 
-                '--', 
-                '"-s=settings.xml"'
-            ]
-            logging.debug("Args: ", str(args))
-            if conf['snyk_policy']:
-                policyarg = f'--policy-path={conf["snyk_policy"]}'
-                args.insert(2, policyarg)
-            test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
-        except subprocess.TimeoutExpired as e:
-            logging.error('Timeout expired running snyk test')
-            sys.exit(1)
-        test_res = test_res.stdout.decode('utf-8')
-        logging.debug(f'\n\n===\n\n{test_res}\n\n===\n\n')
-        test_res = json.loads(test_res)
-        if not conf['no_monitor']:
-            snyk_org = f'--org={conf["s_org"]}'
-            snyk_proj = f'--project-name={conf["s_proj"]}'
-            args = ['/puppet/snyk', 
-                'monitor', 
-                '--file=pom.xml', 
-                snyk_org, 
-                snyk_proj, 
-                '--', 
-                '"-s=settings.xml"'
-            ]
-            logging.notice("running snyk monitor")
-            monitor_res = subprocess.call(args)
-            if monitor_res != 0:
-                logging.error(f'Error running snyk monitor!')
-    except Exception as e:
-        logging.error('Error running snyk test or monitor')
-        raise e
-    # parse the results
-    licenses_errors = set()
-    vulns = set()
-    try:
-        for lic, _v in test_res['licensesPolicy']['orgLicenseRules'].items():
-            licenses_errors.add(lic)
-    except KeyError:
-        logging.error(f"Error parsing licenses!")
-    try:
-        for vuln in test_res['vulnerabilities']:
-            if not vuln['id'].startswith('snyk:lic:'):
-                vulns.add(VulnReport(vuln))
-    except KeyError:
-        logging.error(f"Error parsing vulns!")
-    logging.notice('finishing run and setting outputs')
-    if vulns:
-        _setOutput('vulns', vulns)
-    else:
-        _setOutput('vulns', '')
+    _auth_snyk(os.getenv("INPUT_SNYKTOKEN"))
+    # run lein
+    _run_lein()
+    # get the snyk args
+    snykArgs = _getArgs()
+    # run snyk
+    test_res = _runSnyk(snykArgs)
+    # parse the results for vulnerabilities
+    vulns = _parseResults(test_res)
+    output = _pprint_results(vulns)
+    output = _getOutput('vulns', output)
+    print(output)
+    fo = _getOutput('failure', 'false')
+    print(fo)
+    
+    
