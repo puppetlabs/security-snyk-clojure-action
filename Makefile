@@ -20,7 +20,6 @@ itest:
 		-e INPUT_SNYKPROJECT=puppetserver \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
-		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
 		-e INPUT_NOMONITOR=true \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
 		-t clojure_action 
@@ -34,7 +33,6 @@ itest_ignore:
 		-e INPUT_SNYKPROJECT=puppetserver \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
-		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
 		-e INPUT_NOMONITOR=true \
 		-e INPUT_SNYKPOLICY=.snyk \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
@@ -47,6 +45,5 @@ exec:
 		-e INPUT_SNYKPROJECT=puppetserver \
 		-e INPUT_SNYKTOKEN=$(SNYK_TOKEN) \
 		-e GITHUB_WORKSPACE=/github/workspace \
-		-e INPUT_RPROXYKEY=$(RPROXY_KEY) \
 		-v "/Users/jeremy.mill/Documents/security-snyk-clojure-action/testfiles/$(testFolder)":"/github/workspace" \
 		-it clojure_action /bin/bash
