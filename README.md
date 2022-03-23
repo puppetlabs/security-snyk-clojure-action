@@ -3,8 +3,6 @@
 This action runs snyk on clojure repo, using `leningen` to generate a pom.xml file
 
 ## Inputs
-### twinGateKey (required)
-Uses the TwinGate VPN to replace reverse proxy connections.
 
 ### snykToken (required)
 This input is the secret snyk token
