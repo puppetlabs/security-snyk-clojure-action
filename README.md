@@ -2,7 +2,7 @@
 
 This action runs snyk on clojure repo, using `leningen` to generate a pom.xml file
 
-For the V2 action add the following secrets: 'TWINGATE_PUBLIC_REPO_KEY' in public repos and 'TWINGATE_KEY' private repos
+For the V2 action add the following secrets: `TWINGATE_PUBLIC_REPO_KEY` in public repos and `TWINGATE_KEY` private repos
 
 ## Inputs
 
