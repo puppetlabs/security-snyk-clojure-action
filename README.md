@@ -9,10 +9,10 @@ For the V2 action add the following secrets: `TWINGATE_PUBLIC_REPO_KEY` in publi
 ### snykToken (required)
 This input is the secret snyk token
 
-### snykOrg (required)
+### snykOrg (not required)
 The organization in snyk to send results to
 
-### snykProject (required)
+### snykProject (not required)
 The project name in snyk
 
 ### noMonitor (not required)
