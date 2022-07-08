@@ -120,8 +120,8 @@ def _run_lein():
         _exit_set_error(1)
 
 def _runSnyk(args):
-    noMonitor = os.getenv("INPUT_NOMONITOR") is not None
-    logging.debug(f'noMonitor is: {noMonitor}')
+    noMonitor = bool(os.getenv("INPUT_NOMONITOR"))
+    logging.info(f'noMonitor is: {noMonitor}')
     # run test
     try:
         test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
