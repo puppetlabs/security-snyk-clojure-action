@@ -25,7 +25,7 @@ jobs:
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
         snykPolicy: '.snyk'
-        snykTargetRef: ${{ GITHUB_REF_NAME }}
+        snykTargetRef: true
     - name: Check output
       if: steps.scan.outputs.vulns != ''
       run: echo "Vulnerabilities detected; ${{ steps.scan.outputs.vulns }}" && exit 1

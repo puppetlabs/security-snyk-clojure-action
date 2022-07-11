@@ -96,10 +96,11 @@ def _getArgs():
     if additional_args:
         logging.info(f'adding additional snyk args: {additional_args}')
         snykArgs = snykArgs + additional_args.split(' ')
-    target_ref = os.getenv("INPUT_SNYKTARGETREF")
+    target_ref = bool(os.getenv("INPUT_SNYKTARGETREF"))
     if target_ref:
-        logging.info(f'setting --target-reference="{target_ref}"')
-        snykArgs.append(f'--target-reference="{target_ref}"')
+        branch_name = os.getenv("GITHUB_REF_NAME")
+        logging.info(f'setting --target-reference="{branch_name}"')
+        snykArgs.append(f'--target-reference="{branch_name}"')
     logging.info(f"snyk args: {','.join(snykArgs)[:]}")
     return snykArgs
 
