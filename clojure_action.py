@@ -98,6 +98,7 @@ def _getArgs():
         snykArgs = snykArgs + additional_args.split(' ')
     target_ref = os.getenv("INPUT_SNYKTARGETREF")
     if target_ref:
+        logging.info(f'setting --target-reference="{target_ref}"')
         snykArgs.append(f'--target-reference="{target_ref}"')
     logging.info(f"snyk args: {','.join(snykArgs)[:]}")
     return snykArgs
