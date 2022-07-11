@@ -5,6 +5,7 @@ on:
  push:
     branches:
       - main
+      - foo
 
 jobs:
  snyk_clojure:
@@ -12,7 +13,7 @@ jobs:
    steps:
     - uses: twingate/github-action@v1
       with:
-        service-key: ${{ secrets.TWINGATE_KEY }} # TWINGATE_PUBLIC_REPO_KEY for public repos
+        service-key: ${{ secrets.TWINGATE_KEY }}
     - name: checkout the current PR
       uses: actions/checkout@v2
       with:
@@ -24,6 +25,7 @@ jobs:
       with:
         snykToken: ${{ secrets.SNYK_TOKEN }}
         snykPolicy: '.snyk'
+        snykTargetRef: true
     - name: Check output
       if: steps.scan.outputs.vulns != ''
       run: echo "Vulnerabilities detected; ${{ steps.scan.outputs.vulns }}" && exit 1

@@ -16,6 +16,9 @@ inputs:
   snykPolicy:
     description: 'the path to a .snyk file (https://docs.snyk.io/features/fixing-and-prioritizing-issues/policies/the-.snyk-file)'
     required: false
+  snykTargetRef: 
+    description: 'If true, set --target-reference to GITHUB_REF_NAME when running snyk monitor'
+    required: false
   snykAdditionalArgs:
     description: 'additional args to pass to the snyk command'
     required: false

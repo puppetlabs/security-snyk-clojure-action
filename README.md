@@ -18,6 +18,9 @@ The project name in snyk
 ### noMonitor (not required)
 If you just want to run `snyk test` and not `snyk monitor` you should set this input to `true`
 
+### snykTargetRef (not required - default: false)
+If you set this value to `true`, when running snyk monitor the `--target-reference` argument will be set to the value of `GITHUB_REF_NAME` which is the branch or tag name that triggered the workflow run
+
 ### snykPolicy (not required)
 This is the path to a `.snyk` file in your repository to pass to snyk while running `snyk test`. Information on the file format can be found here: https://docs.snyk.io/features/fixing-and-prioritizing-issues/policies/the-.snyk-file . It can be used to ignore vulnerabilities or remove false positives.
 

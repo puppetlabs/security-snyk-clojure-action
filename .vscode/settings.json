@@ -1,5 +1,8 @@
 {
     "cSpell.enableFiletypes": [
         "!python"
-    ]
+    ],
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "file:///Users/jeremy.mill/Documents/security-snyk-clojure-action/sample_workflow.yaml"
+    }
 }
