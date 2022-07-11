@@ -94,8 +94,11 @@ def _getArgs():
     # if there are additional args split em up and add em
     additional_args = os.getenv('INPUT_SNYKADDITIONALARGS')
     if additional_args:
-        logging.info('adding additional snyk args')
+        logging.info(f'adding additional snyk args: {additional_args}')
         snykArgs = snykArgs + additional_args.split(' ')
+    target_ref = os.getenv("INPUT_SNYKTARGETREF")
+    if target_ref:
+        snykArgs.append(f'--target-reference="{target_ref}"')
     logging.info(f"snyk args: {','.join(snykArgs)[:]}")
     return snykArgs
 
