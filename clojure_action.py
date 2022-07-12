@@ -129,7 +129,7 @@ def _runSnyk(args):
     logging.info(f'noMonitor is: {noMonitor}')
     # run test
     try:
-        test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=900)
+        test_res = subprocess.run(args, stdout=subprocess.PIPE, check=False, timeout=600)
     except subprocess.TimeoutExpired as e:
         logging.error("snyk command timed out")
         _exit_set_error(1)
@@ -146,7 +146,7 @@ def _runSnyk(args):
         try:
             monargs = args
             monargs[1] = 'monitor'
-            mon_res = subprocess.run(monargs, stdout=subprocess.PIPE, check=False, timeout=900)
+            mon_res = subprocess.run(monargs, stdout=subprocess.PIPE, check=False, timeout=600)
             if mon_res.returncode != 0:
                 logging.warning(f"snyk monitor returned return code: {mon_res.returncode}")
         except subprocess.TimeoutExpired as e:
