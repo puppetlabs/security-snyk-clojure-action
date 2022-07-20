@@ -8,7 +8,7 @@ import json
 OPT_ARGS = {
     'INPUT_SNYKPOLICY': '--policy-path={evar}',
     'INPUT_SNYKORG': '--org={evar}',
-    'INPUT_SNYKPROJECT': '--project={evar}'
+    'INPUT_SNYKPROJECT': '--project-name={evar}'
 }
 
 class AuthError(Exception):
@@ -96,6 +96,8 @@ def _getArgs():
     if additional_args:
         logging.info(f'adding additional snyk args: {additional_args}')
         snykArgs = snykArgs + additional_args.split(' ')
+    repo_name = os.getenv("GITHUB_REPOSITORY")
+    snykArgs.append(f'--remote-repo-url=https://github.com/{repo_name}')
     target_ref = bool(os.getenv("INPUT_SNYKTARGETREF"))
     if target_ref:
         branch_name = os.getenv("GITHUB_REF_NAME")
