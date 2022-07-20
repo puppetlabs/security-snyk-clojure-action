@@ -8,7 +8,6 @@ import json
 OPT_ARGS = {
     'INPUT_SNYKPOLICY': '--policy-path={evar}',
     'INPUT_SNYKORG': '--org={evar}',
-    'INPUT_SNYKPROJECT': '--project-name={evar}'
 }
 
 class AuthError(Exception):
@@ -96,8 +95,14 @@ def _getArgs():
     if additional_args:
         logging.info(f'adding additional snyk args: {additional_args}')
         snykArgs = snykArgs + additional_args.split(' ')
+    
+    # this returns "puppetlabs/<repo-name>"
     repo_name = os.getenv("GITHUB_REPOSITORY")
     snykArgs.append(f'--remote-repo-url=https://github.com/{repo_name}')
+    # format project name for the snyk dashboard report
+    # TODO: come up with better approach then hardcoding 'puppetlabs/'
+    proj_name = repo_name.replace('puppetlabs/', '')
+    snykArgs.append(f'--project-name={proj_name}')
     target_ref = bool(os.getenv("INPUT_SNYKTARGETREF"))
     if target_ref:
         branch_name = os.getenv("GITHUB_REF_NAME")
@@ -222,5 +227,4 @@ if __name__ == "__main__":
     print(output)
     fo = _getOutput('failure', 'false')
     print(fo)
-    
     

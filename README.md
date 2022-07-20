@@ -12,9 +12,6 @@ This input is the secret snyk token
 ### snykOrg (not required)
 The organization in snyk to send results to
 
-### snykProject (not required)
-The project name in snyk
-
 ### noMonitor (not required)
 If you just want to run `snyk test` and not `snyk monitor` you should set this input to `true`
 
