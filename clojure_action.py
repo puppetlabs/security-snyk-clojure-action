@@ -8,7 +8,8 @@ import json
 OPT_ARGS = {
     'INPUT_SNYKPOLICY': '--policy-path={evar}',
     'INPUT_SNYKORG': '--org={evar}',
-    'INPUT_SNYKPROJECT': '--project={evar}'
+    'INPUT_SNYKPROJECT': '--project-name={evar}',
+    'INPUT_REPONAME': '--remote-repo-url={evar}'
 }
 
 class AuthError(Exception):
