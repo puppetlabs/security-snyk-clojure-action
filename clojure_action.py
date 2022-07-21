@@ -8,7 +8,8 @@ import json
 OPT_ARGS = {
     'INPUT_SNYKPOLICY': '--policy-path={evar}',
     'INPUT_SNYKORG': '--org={evar}',
-    'INPUT_SNYKPROJECT': '--project-name={evar}'
+    'INPUT_SNYKPROJECT': '--project-name={evar}',
+    'INPUT_SNYKREPO': '--remote-repo-url={evar}'
 }
 
 class AuthError(Exception):
@@ -96,8 +97,19 @@ def _getArgs():
     if additional_args:
         logging.info(f'adding additional snyk args: {additional_args}')
         snykArgs = snykArgs + additional_args.split(' ')
+    
+    # this returns "puppetlabs/<repo-name>"
     repo_name = os.getenv("GITHUB_REPOSITORY")
-    snykArgs.append(f'--remote-repo-url=https://github.com/{repo_name}')
+    snyk_repo = os.getenv("INPUT_SNYKREPO")
+    # set to default repo name if not specified
+    if snyk_repo == '':
+        snykArgs.append(f'--remote-repo-url=https://github.com/{repo_name}')
+    snyk_proj = os.getenv("INPUT_SNYKPROJECT")
+    # set to default project name if not specified
+    if snyk_proj == '':
+        # get the repo name without the owner name
+        proj_name = repo_name.split('/')[1]
+        snykArgs.append(f'--project-name={proj_name}')
     target_ref = bool(os.getenv("INPUT_SNYKTARGETREF"))
     if target_ref:
         branch_name = os.getenv("GITHUB_REF_NAME")
@@ -222,5 +234,4 @@ if __name__ == "__main__":
     print(output)
     fo = _getOutput('failure', 'false')
     print(fo)
-    
     
