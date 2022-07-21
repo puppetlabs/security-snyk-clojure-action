@@ -100,13 +100,13 @@ def _getArgs():
     
     # this returns "puppetlabs/<repo-name>"
     repo_name = os.getenv("GITHUB_REPOSITORY")
-    snyk_repo = bool(os.getenv("INPUT_SNYKREPO"))
+    snyk_repo = os.getenv("INPUT_SNYKREPO")
     # set to default repo name if not specified
-    if not snyk_repo:
+    if snyk_repo == '':
         snykArgs.append(f'--remote-repo-url=https://github.com/{repo_name}')
-    snyk_proj = bool(os.getenv("INPUT_SNYKPROJECT"))
+    snyk_proj = os.getenv("INPUT_SNYKPROJECT")
     # set to default project name if not specified
-    if not snyk_proj:
+    if snyk_proj == '':
         # get the repo name without the owner name
         proj_name = repo_name.split('/')[1]
         snykArgs.append(f'--project-name={proj_name}')
