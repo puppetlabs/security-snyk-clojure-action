@@ -128,3 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 testfiles/
+
+# ignore _old dir used for transitioning from v1 to v2
+_old/

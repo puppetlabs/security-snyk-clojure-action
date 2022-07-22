@@ -2,22 +2,27 @@
 
 This action runs snyk on clojure repo, using `leningen` to generate a pom.xml file
 
+For the V2 action add the following secrets: `TWINGATE_PUBLIC_REPO_KEY` in public repos and `TWINGATE_KEY` private repos
+
 ## Inputs
 
 ### snykToken (required)
 This input is the secret snyk token
 
-### snykOrg (required)
+### snykOrg (not required)
 The organization in snyk to send results to
 
-### snykProject (required)
+### snykProject (not required)
 The project name in snyk
 
-### rproxyKey (required)
-The reverse proxy API key
+### snykRepo (not required)
+Set this if you want to group under different repository in Snyk.
 
 ### noMonitor (not required)
 If you just want to run `snyk test` and not `snyk monitor` you should set this input to `true`
+
+### snykTargetRef (not required - default: false)
+If you set this value to `true`, when running snyk monitor the `--target-reference` argument will be set to the value of `GITHUB_REF_NAME` which is the branch or tag name that triggered the workflow run
 
 ### snykPolicy (not required)
 This is the path to a `.snyk` file in your repository to pass to snyk while running `snyk test`. Information on the file format can be found here: https://docs.snyk.io/features/fixing-and-prioritizing-issues/policies/the-.snyk-file . It can be used to ignore vulnerabilities or remove false positives.
